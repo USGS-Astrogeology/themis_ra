@@ -1,0 +1,262 @@
+Object = thm2isis
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2014-05-16
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:34:21
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Import a Themis IR/VIS RDR or EDR"
+
+  Group = UserParameters
+    FROM       = /pds_san/PDS_Safed/Mars_Odyssey/THEMIS_V01/data/odtir0_xxxx/-
+                 i262xxrdr/I26201019RDR.QUB
+    TO         = /usgs/shareall/arsanders/themis_temp/I26201019RDR.cub
+    TIMEOFFSET = 0.0
+  End_Group
+
+  Group = Error
+    Program = /usgs/pkgs/isis3/isis/bin/thm2isis
+    Class   = "I/O ERROR"
+    Code    = 4
+    Message = "Failed to create
+               [/usgs/shareall/arsanders/themis_temp/I26201019RDR.cub]. Verify
+               the output path exists and you have permission to write to the
+               path"
+    File    = Cube.cpp
+    Line    = 452
+  End_Group
+End_Object
+
+
+Object = thm2isis
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2014-05-16
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:35:39
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Import a Themis IR/VIS RDR or EDR"
+
+  Group = UserParameters
+    FROM       = /pds_san/PDS_Safed/Mars_Odyssey/THEMIS_V01/data/odtir0_xxxx/-
+                 i262xxrdr/I26201019RDR.QUB
+    TO         = /usgs/shareall/arsanders/themis_temp/I26201019RDR.cub
+    TIMEOFFSET = 0.0
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.3
+    CpuTime     = 00:00:01.8
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2017-06-01
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:35:40
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = /usgs/shareall/arsanders/themis_temp/I26201019RDR.cub
+    WEB          = false
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://services.isis.astrogeology.usgs.gov/cgi-bin/spicei-
+                   nit.cgi
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -53031
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $base/kernels/pck/pck00009.tpc
+    TargetPosition            = $base/kernels/spk/de405.bsp
+    InstrumentPointing        = ($odyssey/kernels/ck/m01_sc_ext13.bc,
+                                 $odyssey/kernels/fk/m01_v29.tf)
+    Instrument                = Null
+    SpacecraftClock           = $odyssey/kernels/sclk/ORB1_SCLKSCET.00224.tsc
+    InstrumentPosition        = $odyssey/kernels/spk/m01_ext13.bsp
+    InstrumentAddendum        = $odyssey/kernels/iak/themisAddendum003.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 2
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.4
+    CpuTime     = 00:00:01.1
+  End_Group
+End_Object
+
+
+Object = thm2isis
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2014-05-16
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:48:51
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Import a Themis IR/VIS RDR or EDR"
+
+  Group = UserParameters
+    FROM       = /pds_san/PDS_Safed/Mars_Odyssey/THEMIS_V01/data/odtir0_xxxx/-
+                 i262xxrdr/I26201019RDR.QUB
+    TO         = /usgs/shareall/arsanders/themis_temp/tmpj62isn4j/I26201019RD-
+                 R.cub
+    TIMEOFFSET = 0.0
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.4
+    CpuTime     = 00:00:01.9
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2017-06-01
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:48:52
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = /usgs/shareall/arsanders/themis_temp/tmpj62isn4j/I26201019-
+                   RDR.cub
+    WEB          = false
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://services.isis.astrogeology.usgs.gov/cgi-bin/spicei-
+                   nit.cgi
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -53031
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $base/kernels/pck/pck00009.tpc
+    TargetPosition            = $base/kernels/spk/de405.bsp
+    InstrumentPointing        = ($odyssey/kernels/ck/m01_sc_ext13.bc,
+                                 $odyssey/kernels/fk/m01_v29.tf)
+    Instrument                = Null
+    SpacecraftClock           = $odyssey/kernels/sclk/ORB1_SCLKSCET.00224.tsc
+    InstrumentPosition        = $odyssey/kernels/spk/m01_ext13.bsp
+    InstrumentAddendum        = $odyssey/kernels/iak/themisAddendum003.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 2
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.9
+    CpuTime     = 00:00:00.9
+  End_Group
+End_Object
+
+
+Object = thm2isis
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2014-05-16
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:49:44
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Import a Themis IR/VIS RDR or EDR"
+
+  Group = UserParameters
+    FROM       = /pds_san/PDS_Safed/Mars_Odyssey/THEMIS_V01/data/odtir0_xxxx/-
+                 i262xxrdr/I26201019RDR.QUB
+    TO         = /usgs/shareall/arsanders/themis_temp/tmp5d0b77wd/I26201019RD-
+                 R.cub
+    TIMEOFFSET = 0.0
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.1
+    CpuTime     = 00:00:01.4
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "3.5.1.7995 stable | 2017-08-08"
+  ProgramVersion    = 2017-06-01
+  ProgramPath       = /usgs/pkgs/isis3.5.1/isis/bin
+  ExecutionDateTime = 2017-11-13T15:49:45
+  HostName          = Unknown
+  UserName          = arsanders
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = /usgs/shareall/arsanders/themis_temp/tmp5d0b77wd/I26201019-
+                   RDR.cub
+    WEB          = false
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://services.isis.astrogeology.usgs.gov/cgi-bin/spicei-
+                   nit.cgi
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -53031
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $base/kernels/pck/pck00009.tpc
+    TargetPosition            = $base/kernels/spk/de405.bsp
+    InstrumentPointing        = ($odyssey/kernels/ck/m01_sc_ext13.bc,
+                                 $odyssey/kernels/fk/m01_v29.tf)
+    Instrument                = Null
+    SpacecraftClock           = $odyssey/kernels/sclk/ORB1_SCLKSCET.00224.tsc
+    InstrumentPosition        = $odyssey/kernels/spk/m01_ext13.bsp
+    InstrumentAddendum        = $odyssey/kernels/iak/themisAddendum003.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 2
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.0
+    CpuTime     = 00:00:01.0
+  End_Group
+End_Object
+
+
