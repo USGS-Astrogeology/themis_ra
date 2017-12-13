@@ -366,11 +366,11 @@ def cost_func(variables, obs3, obs9, rock3, rock9):
                A list of values that indicate bounds for alpha, fine3, and fine9
 
     obs3:      float
-               The floating point value representing the observed value of a 
+               The floating point value representing the observed value of a
                  pixel from the third band of an input image.
-          
+
     obs9:      float
-               The floating point value representing the observed value of a 
+               The floating point value representing the observed value of a
                  pixel from the ninth band of an input image.
 
     rock3:     float
@@ -378,11 +378,11 @@ def cost_func(variables, obs3, obs9, rock3, rock9):
 
     rock9:     float
                The expected value of rock in band 9.
-    
+
     Returns
     -------
     z:         float
-               The cost of the current configuration as described by the 
+               The cost of the current configuration as described by the
                  mathematical cost function.
     """
 
@@ -398,11 +398,28 @@ def cost_func(variables, obs3, obs9, rock3, rock9):
     delta_fine = abs(fine3 - fine9)
 
     z = abs((delta_rock * alpha + delta_fine * (1-alpha)) - delta_obs)
-    
+
     return z
 
 def generate_rad_image(temp_image, band_num):
     """
+    Given a temperature image, generate a new image that is filled with the radiance value for
+    rocks from a given band number. The new radiance image is the same size as the
+    temperature image.
+
+    Parameters
+    ----------
+    temp_image : ndarray
+               Array representation of the image
+
+    band_num : int
+               Band number that needs to be extracted
+
+    Returns
+    ----------
+    rad_image : ndarray
+               Array representation of the new rad image
+
     """
     band_values = {
     "1": 0.000173866,
@@ -429,9 +446,19 @@ def extract_band(job, image, band_num):
 
     Parameters
     ----------
+    job : dict
+               Job specification dictionary
+
+    image : str
+               PATH to an ISIS cube to extract bands from
+
+    band_num : int
+               Band number that needs to be extracted
 
     Returns
     ----------
+    : ndarray
+               Array representation of the extracted band
     """
     header = pvl.load(job['images'])
     bands = find_in_dict(header, 'BAND_BIN_BAND_NUMBER')
@@ -441,3 +468,42 @@ def extract_band(job, image, band_num):
             geo_image = io_gdal.GeoDataset(image)
             return geo_image.read_array(band = i + 1)
 
+def extract_latlon_transform(isiscube, job):
+    """
+    Given an ISIS cube, extract the upper left (x, y) coords and the height and width
+
+    Parameters
+    ----------
+    isiscube : str
+               PATH to an ISIS cube to use for latlon to pixel translation
+
+    job : dict
+               Job specification dictionary
+
+    Returns
+    ----------
+    xoff : int
+               x coordinate of the upper left pixel
+
+    yoff : int
+               y coordinate of the upper left pixel
+
+    width : int
+               Width of the new area
+
+    height : int
+               Height of the new area
+    """
+    isiscube_geodata = io_gdal.GeoDataset(isiscube)
+    lry, uly = job["lat_extent"]
+    ulx, lrx = job["lon_extent"]
+
+    ul_coords = isiscube_geodata.latlon_to_pixel(uly, ulx)
+    lr_coords = isiscube_geodata.latlon_to_pixel(lry, lrx)
+
+    xoff = ul_coords[0]
+    yoff = ul_coords[1]
+
+    width = abs(lr_coords[0] - xoff)
+    height = abs(lr_coords[1] - yoff)
+    return xoff, yoff, width, height

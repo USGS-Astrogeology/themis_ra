@@ -10,9 +10,11 @@ from scipy.optimize import differential_evolution
 
 import plio.utils
 from plio.utils import log
+from plio.io import io_gdal
 from plio.utils.utils import check_file_exists
 
 import pvl
+import gdal
 
 import themisra.utils.utils as util
 from themisra.wrappers import pipelinewrapper, isiswrapper
@@ -203,10 +205,10 @@ def map_ancillary(isiscube, job):
           With updated values of ancillary data
 
     """
-
     comm = MPI.COMM_WORLD
     rank = comm.rank
-    basepath, _ = os.path.split(isiscube)
+    basepath, fname = os.path.split(isiscube)
+    fname, _ = os.path.splitext(fname)
     workingpath = basepath
     parameters = util.extract_metadata(isiscube, dict())
 
@@ -216,53 +218,45 @@ def map_ancillary(isiscube, job):
             logger.error('Failed to extract temperature data.')
             MPI.COMM_WORLD.Abort(1)
 
-        if "reference" not in job.keys():
+        if len(job['lat_extent']) < 2 or len(job['lat_extent'])  < 2:
             shape =  list(temperature.raster_size)[::-1]
             reference_dataset = temperature
             reference_name = "temperature"
         else:
-            in_ref = job["ancillarydata"][job["reference"]]
+            xoff, yoff, width, height = util.extract_latlon_transform(isiscube, job)
+            resample = os.path.join(basepath, fname + '_resampled.tif')
 
-            # Resample the input reference to the requested resolution
-            if "reference_resolution" in job.keys():
-                out_ref = os.path.join(workingpath, os.path.splitext(in_ref)[0] + 'resampled.tif')
-                xres, yres = job["reference_resolution"]
-                opts = gdal.TranslateOptions(xRes=xres, yRes=yres)
-                gdal.Translate(out_ref, in_ref, options=opts)
-                in_ref = out_ref
+            opts = gdal.TranslateOptions(srcWin=[xoff, yoff, width, height])
+            gdal.Translate(resample, isiscube, options=opts)
 
-            reference_dataset = io_gdal.GeoDataset(in_ref)
-            reference_name = job["reference"]
-            # Get the temperature set to the correct size as well as spatial resolution.
-            shape = list(reference_dataset.raster_size)[::-1]
-            lower, upper = reference_dataset.latlon_extent
-            # Update the start and stop latitudes
+            resample_geodata  = io_gdal.GeoDataset(resample)
+            shape = list(resample_geodata.raster_size)[::-1]
+            lower, upper = resample_geodata.latlon_extent
+
             parameters['startlatitude'] = lower[0]
             parameters['stoplatitude'] = upper[0]
-            clipped = os.path.join(workingpath, os.path.splitext(isiscube)[0] + '_clipped.tif')
-            io_gdal.match_rasters(reference_dataset, temperature, clipped,
-                                  ndv=temperature.no_data_value)
-            temperature = util.extract_temperature(clipped)
+
+            temperature = util.extract_temperature(resample)
+            reference_dataset = resample_geodata
 
         # Extract the ancillary data
         ancillary_data = util.extract_ancillary_data(job, temperature, parameters, workingpath, shape, reference_dataset)
-
         return ancillary_data
 
 
 def optimize_pixel(obs3, obs9, rock3, rock9):
-    """Find the optimal value for a single pixel using differential evolution 
+    """Find the optimal value for a single pixel using differential evolution
          technique.
 
     Parameters
     ----------
-    
+
     obs3:       float
-                The value for this pixel that was observed in band 3 of the 
+                The value for this pixel that was observed in band 3 of the
                   input image.
 
     obs9:       float
-                The value for this pixel that was observed in band 9 of the 
+                The value for this pixel that was observed in band 9 of the
                   input image.
 
     rock3:      float

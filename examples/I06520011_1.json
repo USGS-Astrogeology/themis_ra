@@ -1,6 +1,6 @@
 {"tesatm": true,
     "outpath": "/usgs/shareall/arsanders/themis_temp",
-    "images": "/pds_san/PDS_Safed/Mars_Odyssey/THEMIS_V01/data/odtir0_xxxx/i262xxrdr/I26201019RDR.QUB",
+    "images": "/pds_san/PDS_Archive/Mars_Odyssey/THEMIS/USA_NASA_PDS_ODTSDP_100XX/ODTSDP_10006/data/odtir1_0006/i065xxrdr/I06520011RDR.QUB",
     "processing_pipeline": "themis_davinci",
     "force": true,
     "deplaid": false,
@@ -17,6 +17,6 @@
         "elevation": "/scratch/rfergason/ti_algorithm/input_final/elevation_MOLA_HRSC/Mars_MOLA_blend200ppx_HRSC_DEM_clon0dd_200mpp_lzw.tif",
         "slopeazimuth": "/scratch/rfergason/ti_algorithm/input_data/MOLA_HRSC/Mars_MOLA_blend200ppx_HRSC_Aspect_clon0dd_200mpp.cub"},
     "bands": [9, 10],
-    "lat_extent": [],
-    "lon_extent": [],
+    "lat_extent": [18.44, 18.46],
+    "lon_extent": [77.39, 77.46], 
 "lookuptables": "/scratch/jlaura/krc_lookup344.h5"}
