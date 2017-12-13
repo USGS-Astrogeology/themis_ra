@@ -293,10 +293,11 @@ def write_to_gtiff(bands, isiscube, job):
     bittype = 'GDT_Float64'
 
     temperature = util.extract_temperature(isiscube)
+    td_g = temperature.read_array()
+    y, x = td_g.shape
 
     outpath = os.path.join(job['outpath'], temperature.base_name)
 
-    # @@TODO where do we get x and y?
     dataset = driver.Create('{}.tif'.format(outpath)), x, y, bands, getattr(gdal, bittype))
 
     ndv = None
