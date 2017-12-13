@@ -284,4 +284,35 @@ def optimize_pixel(obs3, obs9, rock3, rock9):
                                  args=(obs3, obs9, rock3,rock9),
                                  strategy='best1bin')
     alpha, fine3, fine9 = res['x']
-    print(alpha*100, (1-alpha)*100, fine3, fine9, res['fun'])
+
+    return alpha, fine3, fine9, res['success'], res['nit']
+
+def write_to_gtiff(bands, isiscube, job):
+    driver = gdal.GetDriverByName('GTiff')
+    bands = len(bands)
+    bittype = 'GDT_Float64'
+
+    temperature = util.extract_temperature(isiscube)
+
+    outpath = os.path.join(job['outpath'], temperature.base_name)
+
+    # @@TODO where do we get x and y?
+    dataset = driver.Create('{}.tif'.format(outpath)), x, y, bands, getattr(gdal, bittype))
+
+    ndv = None
+
+    try:
+        ndv = temperature.no_data_value
+    except:
+        # intentionally left blank
+        pass
+
+    for i in range(len(bands)):
+        bnd = dataset.GetRasterBand(i)
+        if ndv != None:
+            bnd.SetNoDataValue(ndv)
+        bnd.WriteArray(bands(band))
+        dataset.FlushCache()
+
+    return outpath
+
