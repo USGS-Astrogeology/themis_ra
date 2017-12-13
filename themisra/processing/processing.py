@@ -285,7 +285,22 @@ def optimize_pixel(obs3, obs9, rock3, rock9):
                                  strategy='best1bin')
     alpha, fine3, fine9 = res['x']
 
-    return alpha, fine3, fine9, res['success'], res['nit']
+    return [alpha, fine3, fine9, res['success'], res['nit']]
+
+def optimize_all(obs3, obs9, rock3, rock9):
+    # Arrays to hold alpha, fine3, fine9, b_success, n_iter
+    out = [ [], [], [], [], [] ]
+
+    #@@TODO assumes that obs3, obs9, rock3, rock9 are the same size.
+    for i in range len(obs3):
+         params = optimize_pixel(obs3, obs9, rock3, rock9):
+         #append pixel values to corresponding lists
+         for j in range(len(params)):
+             out[j].append(params[j])
+
+    return out
+
+        
 
 def write_to_gtiff(bands, isiscube, job):
     driver = gdal.GetDriverByName('GTiff')
