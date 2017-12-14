@@ -19,7 +19,7 @@ def preprocess_for_davinci(image, outcube, kernel):
     else:
         isis.spiceinit(from_=outcube)
 
-def postprocess_for_davinci(incube, kernel=None):
+def postprocess_for_davinci(incube, kernel=None, latlon_bounds=[]):
     #Processing the temperature to a level2 image
     if kernel:
         try:
@@ -39,6 +39,20 @@ def postprocess_for_davinci(incube, kernel=None):
                  map='$base/templates/maps/simplecylindrical.map')
     except ProcessError as e:
         print(e.stderr)
+    isis_cropped_cube = os.path.join(workingpath, '{}_proj_cropped.cub'.format(fname))
+    if latlon_bounds:
+        try:
+            isis.maptrim(from_=isiscube,
+                         to=isis_cropped_cube,
+                         minlat=latlon_bounds[0],
+                         maxlat=latlon_bounds[1],
+                         minlon=latlon_bounds[2],
+                         maxlon=latlon_bounds[3],
+                         mode='CROP'
+                )
+            isiscube = isis_cropped_cube
+        except ProcessError as e:
+            print(e.stderr)
     return isiscube
 
 def campt_header(outcube):

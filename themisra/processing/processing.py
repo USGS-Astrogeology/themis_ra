@@ -1,15 +1,12 @@
 import os
 import logging
-import operator as op
 import sys
 
-from mpi4py import MPI
+from themisra import MPI
 
 import numpy as np
 from scipy.optimize import differential_evolution
 
-import plio.utils
-from plio.utils import log
 from plio.io import io_gdal
 from plio.utils.utils import check_file_exists
 
@@ -89,6 +86,7 @@ def preprocess_image(job, workingpath):
     """
     # Check that the image exists
     image = job['images']
+
     if not check_file_exists(image):
         MPI.COMM_WORLD.Abort(1)
 
@@ -172,20 +170,26 @@ def process_image(job, workingpath):
         if deplaid == 'day':
             deplaid = 0
 
-    #Process temperature data using some pipeline
-    #try:
     dvcube = processingpipelines[job['processing_pipeline']](image, workingpath, deplaid,
                                                              job['uddw'], job['tesatm'],
                                                              job['rtilt'], job['force'])
-    #except:
-    #    logger.error("Unknown processing pipeline: {}".format(job['processing_pipeline']))
 
-    isistemp = isiswrapper.postprocess_for_davinci(dvcube + '_temp.cub')
+    kernel = job.get('kernel', None)
+    lats = job.get('lat_extent',[])
+    lons = job.get('lon_extent', [])
+    if lats:
+        latlon_bounds = [lats[0], lats[1], lons[0], lons[1]]
+    else:
+        latlon_bounds = []
+    isistemp = isiswrapper.postprocess_for_davinci(dvcube + '_temp.cub',
+                                                   kernel=kernel,
+                                                   latlon_bounds=latlon_bounds)
 
-    isisrad =  isiswrapper.postprocess_for_davinci(dvcube + '_rad.cub')
+    isisrad =  isiswrapper.postprocess_for_davinci(dvcube + '_rad.cub',
+                                                   kernel=kernel,
+                                                   latlon_bounds=latlon_bounds)
 
     return isistemp, isisrad
-
 
 def map_ancillary(isiscube, job):
     """
@@ -218,26 +222,9 @@ def map_ancillary(isiscube, job):
             logger.error('Failed to extract temperature data.')
             MPI.COMM_WORLD.Abort(1)
 
-        if len(job['lat_extent']) < 2 or len(job['lat_extent'])  < 2:
-            shape =  list(temperature.raster_size)[::-1]
-            reference_dataset = temperature
-            reference_name = "temperature"
-        else:
-            xoff, yoff, width, height = util.extract_latlon_transform(isiscube, job)
-            resample = os.path.join(basepath, fname + '_resampled.tif')
-
-            opts = gdal.TranslateOptions(srcWin=[xoff, yoff, width, height])
-            gdal.Translate(resample, isiscube, options=opts)
-
-            resample_geodata  = io_gdal.GeoDataset(resample)
-            shape = list(resample_geodata.raster_size)[::-1]
-            lower, upper = resample_geodata.latlon_extent
-
-            parameters['startlatitude'] = lower[0]
-            parameters['stoplatitude'] = upper[0]
-
-            temperature = util.extract_temperature(resample)
-            reference_dataset = resample_geodata
+        shape =  list(temperature.raster_size)[::-1]
+        reference_dataset = temperature
+        reference_name = "temperature"
 
         # Extract the ancillary data
         ancillary_data = util.extract_ancillary_data(job, temperature, parameters, workingpath, shape, reference_dataset)
@@ -286,15 +273,15 @@ def optimize_all(obs3, obs9, rock3, rock9):
     out = [ [], [], [], [], [] ]
 
     #@@TODO assumes that obs3, obs9, rock3, rock9 are the same size.
-    for i in range len(obs3):
-         params = optimize_pixel(obs3, obs9, rock3, rock9):
+    for i in range(len(obs3)):
+         params = optimize_pixel(obs3, obs9, rock3, rock9)
          #append pixel values to corresponding lists
          for j in range(len(params)):
              out[j].append(params[j])
 
     return out
 
-        
+
 
 def write_to_gtiff(bands, isiscube, job):
     driver = gdal.GetDriverByName('GTiff')
@@ -307,7 +294,7 @@ def write_to_gtiff(bands, isiscube, job):
 
     outpath = os.path.join(job['outpath'], temperature.base_name)
 
-    dataset = driver.Create('{}.tif'.format(outpath)), x, y, bands, getattr(gdal, bittype))
+    dataset = driver.Create('{}.tif'.format(outpath), x, y, bands, getattr(gdal, bittype))
 
     ndv = None
 
@@ -325,4 +312,3 @@ def write_to_gtiff(bands, isiscube, job):
         dataset.FlushCache()
 
     return outpath
-

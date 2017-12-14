@@ -6,7 +6,7 @@ import sys
 import time
 import pvl
 
-from mpi4py import MPI
+from themisra import MPI
 
 from plio.io import io_gdal, io_hdf, io_json
 from plio.date import astrodate, julian2ls, julian2season
@@ -30,6 +30,36 @@ def mpi_excepthook(v, t, tb):
     MPI.COMM_WORLD.Abort(1)
 sys.excepthook = mpi_excepthook
 
+def process_image(job, logger=None, bands=[3,9]):
+    #Create a temporary working directory
+    working_path = plio.utils.utils.create_dir(basedir=job['workingdir'])
+    if not logger: print('Working dir created at {}'.format(working_path))
+    # ISIS preprocessing
+    processing.preprocess_image(job, working_path)
+    if not logger: print('Preprocessing completed.')
+    # DaVinci processing
+    isistemp, isisrad = processing.process_image(job,working_path)
+    if not logger: print('Davinci processing completed.')
+    processing.map_ancillary(isistemp, job)
+    if not logger: print('Ancillary data collection completed.')
+    band_a = util.extract_band(job, isistemp, bands[0])
+    if band_a is None:
+        print('Input image does not contain band {}'.format(bands[0]))
+        return
+    band_b = util.extract_band(job, isistemp, bands[1])
+    if band_b is None:
+        print('Input image does not contain band {}'.format(band[1]))
+        return
+
+    if not logger: print('Bands {} and {} extracted.'.format(*bands))
+
+    rock_a = util.generate_rad_image(band_a, bands[0])
+    rock_b = util.generate_rad_image(band_b, bands[1])
+    if not logger: print('Rock {} and rock {} computed.'.format(*bands))
+    if not logger: print('Pre- & post-processing complete.')
+
+    return band_a, band_b, rock_a, rock_b
+
 #Setup logging
 #log.setup_logging(level=config.LOG_LEVEL)
 logger = logging.getLogger(__name__)
@@ -46,23 +76,7 @@ def main():
         logger.info("Processing using {} cores".format(comm.size))
         job = io_json.read_json(sys.argv[1])
 
-        #Create a temporary working directory
-        working_path = plio.utils.utils.create_dir(basedir=job['workingdir'])
-
-        # ISIS preprocessing
-        processing.preprocess_image(job, working_path)
-
-        # DaVinci processing
-        isistemp, isisrad = processing.process_image(job,working_path)
-        processing.map_ancillary(isistemp, job)
-
-
-        band_three = util.extract_band(job, isistemp, 3)
-        band_nine = util.extract_band(job, isistemp, 9)
-
-        rock_three = util.generate_rad_image(band_three, 3)
-        rock_nine = util.generate_rad_image(band_nine, 9)
-
+        process_image(job)
 
 if __name__ == '__main__':
     main()
