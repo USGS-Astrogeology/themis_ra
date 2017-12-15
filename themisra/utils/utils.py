@@ -3,7 +3,7 @@ import glob
 import logging
 import operator as op
 
-from mpi4py import MPI
+from themisra import MPI
 
 import numpy as np
 
@@ -433,7 +433,7 @@ def generate_rad_image(temp_image, band_num):
     "9": 0.000393225,
     "10": 0.000348427}
 
-    if int is type(band_num):
+    if isinstance(band_num, int):
         band_num = str(band_num)
 
     radiance_value = band_values[band_num]
